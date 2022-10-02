@@ -1,0 +1,148 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model IEnumerable<Message>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="d-flex justify-content-center div1" >
+    <div ><h1 class="h">Welcome To Chat<span style="border-color:white;color: #0E86D4">ROOM</span></h1></div>
+</div>
+@if (SignInManager.IsSignedIn(User))
+{
+
+    <link href="~/css/chat.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/signalr.js/jquery.signalR.js"></script>
+    <div class="container">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card chat-app">
+                    <div id="plist" class="people-list">
+                        @*List of users *@
+                        <h3 style="text-align: center; color:#0E86D4">All Users</h3>
+                        <hr />
+                        <ul id="users" class="list-unstyled chat-list mt-2 mb-0">
+                            @foreach (var item in ViewBag.users)
+                            {
+                                <li class="clearfix">
+                                    @if (item.ProfilePicture != null)
+                                    {
+                                        <img class="rounded-circle" style="height:40px;width:40px;object-fit:cover" src="data:image/*;base64,@(Convert.ToBase64String(item.ProfilePicture))">
+                                    }
+                                    else
+                                    {
+                                        <img class="rounded-circle" style="height:40px;width:40px;object-fit:cover" src="~/Images/no-image-icon-Copy.png">
+                                    }
+                                    <div class="about">
+                                        <div class="name">@item.UserName</div>
+                                        <div class="status"> @*<i class="fa fa-circle offline"></i>*@</div>
+                                    </div>
+                                </li>
+                            }
+
+
+                        </ul>
+                    </div>
+
+                    <div class="chat">
+                        <div class="chat-header clearfix">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                                        @if (UserManager.GetUserAsync(User).Result.ProfilePicture != null)
+                                        {
+                                            <img class="rounded-circle" style="height:40px;width:40px;object-fit:cover" src="data:image/*;base64,@(Convert.ToBase64String(UserManager.GetUserAsync(User).Result.ProfilePicture))" alt="avatar">
+                                        }
+                                        else
+                                        {
+                                            <img class="rounded-circle" style="height:40px;width:40px;object-fit:cover" src="~/Images/no-image-icon-Copy.png">
+                                        }
+                                    </a>
+                                    <div class="chat-about">
+                                        <h6 class="m-b-0">@User.Identity.Name</h6>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="chat-history" id="data" style="overflow-y:scroll;height:400px">
+
+                            <ul class="m-b-0" id="messagesList">
+
+                                @foreach (var item in Model)
+                                {
+                                    if (item.user.UserName == User.Identity.Name)
+                                    {
+                                        <li class="clearfix">
+                                            <div class="message-data text-right">
+                                                @if (item.time == DateTime.Today)
+                                                {
+                                                    <span class="message-data-time">@item.time.ToShortTimeString()</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="message-data-time">@item.time</span>
+                                                }
+                                            </div>
+                                            <div class="message  float-right " style="color:white;background-color: #0E86D4">@item.Text</div>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="clearfix">
+
+                                            <div class="message-data">
+                                                @if (item.time == DateTime.Today)
+                                                {
+                                                    <span class="message-data-time">@item.time.ToShortTimeString()</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="message-data-time">@item.time</span>
+                                                }
+                                            </div>
+
+                                            <div class="message" style="background-color:#e8f1f3"><h5 class="text-left" style="color:#0E86D4">@item.SenderUsername</h5>@item.Text</div>
+                                        </li>
+
+                                    }
+
+
+                                }
+
+
+
+                            </ul>
+                        </div>
+
+                        <div class="chat-message clearfix">
+                            <div class="input-group mb-0">
+                                <div class="col-4"><input type="text" id="userInput" value="@User.Identity.Name" hidden /></div>
+                                <div class="input-group-prepend">
+
+                                    <input type="button" id="sendButton" class="input-group-text" hidden />
+                                </div>
+                                <input id="messageInput" type="text" class="form-control" placeholder=" Message..." style="height: 50px; width: 100%; border-color: #0E86D4; border-radius: 20px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/Chat.js"></script>
+
+}
+
